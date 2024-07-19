@@ -38,3 +38,82 @@ PWM (Pulse Width Modulation) signals are used to control the steering motor, all
 
 ### Video Streaming
 The video feed from the webcam is integrated into the Flask application using OpenCV. Frames are captured and streamed to the web interface in real-time, providing live video feedback to the user.
+
+## Software Installation
+1. **Clone the Repository**
+```bash
+git clone https://github.com/yourusername/web-controlled-rc-car.git
+cd web-controlled-rc-car
+```
+2. **Install Dependencies**
+```bash
+sudo apt-get update
+sudo apt-get install python3-pip
+pip3 install flask opencv-python RPi.GPIO
+```
+
+## Hardware Setup
+1. **Connect the Motors and Motor Driver**
+* Connect the motor driver to GPIO pins on the Raspberry Pi.
+* Connect the motors to the motor driver.
+
+2. **Connect the Webcam**
+* Connect the webcam to a USB port on the Raspberry Pi.
+
+3. **Power the Raspberry Pi**
+* Connect the LiPo battery to the DC-DC converter.
+* Set the DC-DC converter to output 5V.
+* Connect the output to the 5V and GND pins on the Raspberry Pi.
+## Usage
+1. **Start the Flask Application**
+```bash
+python3 app.py
+```
+
+2. **Access the Web Interface**
+Open a web browser on your mobile device or computer.
+Navigate to 'http://<raspberry_pi_ip_address>:5000'
+
+3. **Control the Car**
+Use the web interface to control the car's forward, backward, and steering movements.
+View the live video stream from the webcam.
+
+# Project Details
+## GPIO Setup
+The GPIO pins are configured in the app.py file:
+```bash
+# GPIO setup
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(17, GPIO.OUT)  # Steering
+GPIO.setup(27, GPIO.OUT)
+GPIO.setup(22, GPIO.OUT)  # Motor
+GPIO.setup(23, GPIO.OUT)
+GPIO.setup(24, GPIO.OUT)  # Headlight
+```
+
+## PWM for Steering
+PWM signals are generated to control the steering motor:
+```bash
+pwm = GPIO.PWM(17, 100)
+pwm.start(0)
+```
+## Video Streaming
+The video feed is captured and streamed using OpenCV:
+```bash
+def gen_frames():
+    while True:
+        success, frame = camera.read()
+        if not success:
+            break
+        else:
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+```
+## Future Improvements
+* Add Autonomous Navigation: Implement obstacle detection and autonomous navigation.
+* Enhance Web Interface: Improve the user interface with more controls and features.
+* Battery Management: Add battery monitoring and management for better safety and performance.
+
+
