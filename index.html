@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Raspberry Pi Car Control</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+        #video-container {
+            width: 320px; /* Adjust width as needed */
+            height: 240px; /* Adjust height as needed */
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        #video-stream {
+            width: 100%;
+            height: 100%;
+        }
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 640px;
+            margin-top: 10px;
+        }
+        .control-panel button, .control-panel input[type="range"] {
+            flex: 1;
+            margin: 5px;
+        }
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 640px;
+            margin-bottom: 10px;
+        }
+        .top-controls button {
+            flex: 1;
+            margin: 5px;
+        }
+        .bottom-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 640px;
+        }
+        .bottom-controls button {
+            flex: 1;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-controls">
+        <button onclick="sendCommand('/headlight')">Headlight</button>
+        <button onclick="sendCommand('/stop')">Stop</button>
+    </div>
+    <div id="video-container">
+        <img id="video-stream" src="{{ url_for('video_feed') }}" alt="Video Stream">
+    </div>
+    <div class="bottom-controls">
+        <button onclick="sendCommand('/reverse')">Reverse</button>
+        <button onclick="sendCommand('/forward')">Forward</button>
+        <input id="steering-slider" type="range" min="0" max="100" value="50" oninput="adjustSteering(this.value)">
+    </div>
+    <script>
+        let steeringSlider = document.querySelector('#steering-slider');
+        let lastSteeringValue = 50; // Initial value
+
+        steeringSlider.addEventListener('input', function() {
+            lastSteeringValue = this.value;
+            adjustSteering(lastSteeringValue);
+        });
+
+        steeringSlider.addEventListener('mouseup', function() {
+            // Reset the steering to center (straight) when releasing the slider
+            lastSteeringValue = 50; // Assuming 50 is the center value
+            adjustSteering(lastSteeringValue);
+        });
+
+        function sendCommand(url) {
+            fetch(url)
+                .then(response => console.log('Command sent: ', url))
+                .catch(error => console.error('Error: ', error));
+        }
+
+        function adjustSteering(value) {
+            fetch(`/left/${value}`)
+                .then(response => console.log('Steering adjusted: ', value))
+                .catch(error => console.error('Error: ', error));
+        }
+    </script>
+</body>
+</html>
+
